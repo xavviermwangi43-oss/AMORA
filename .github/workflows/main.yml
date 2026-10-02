@@ -1,0 +1,36 @@
+name: Build AMORA APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Create Android project
+        run: |
+          bubblewrap init \
+            --manifest=https://gentle-queijadas-da6b74.netlify.app/manifest.json \
+            --directory=amora-android
+
+      - name: Build APK
+        working-directory: amora-android
+        run: bubblewrap build --skipSigning
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AMORA-APK
+          path: amora-android/app-release-unsigned-aligned.apk
